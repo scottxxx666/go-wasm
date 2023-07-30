@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>go-wasm</title>
+</head>
+<body>
+<button id="wasm">wasm</button>
+<button id="js">js</button>
+<script src="wasm_exec.js"></script>
+<script>
+    const FibInput = 40;
+
+    function jsFib(i) {
+        if (i <= 1) return 1;
+        return jsFib(i-1) + jsFib(i-2);
+    }
+    window.onload = function () {
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject).then(result => {
+            go.run(result.instance)
+        })
+
+        document.querySelector('#wasm').addEventListener('click', ()=>{
+            console.time('wasm');
+            const res = fibBridge(FibInput);
+            console.log(res)
+            console.timeEnd('wasm');
+        })
+
+        document.querySelector('#js').addEventListener('click', ()=>{
+            console.time('js');
+            const res = jsFib(FibInput);
+            console.log(res)
+            console.timeEnd('js');
+        })
+    }
+</script>
+</body>
+</html>
